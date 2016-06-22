@@ -2,7 +2,8 @@ import Data.Map
 
 data Cell = Cell { x :: Int, y :: Int, alive :: Bool, aliveInNextTick :: Bool, neighbouringCells :: [Cell] }
 
-tick = (\xs = map (fillNeighbours xs) xs) |> map (killIfNeighbours (<2)) |> map (killIfNeighbours (>3)) |> birthNewCells |> (map finalize)
+tick = (\xs = map (fillNeighbours xs) xs) |> map (setL aliveInNextTick True) |>
+				map (killIfNeighbours (<2)) |> map (killIfNeighbours (>3)) |> birthNewCells |> (map finalize)
 
 fillNeighbours xs cell@(Cell x y _ _ _) = 
 	setL neighbouringCells (map cellFromPosition xs (allCombinations [x-1 .. x+1] [y-1 .. y+1])) cell
