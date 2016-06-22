@@ -37,7 +37,7 @@ getNewBirthCells :: [Cell] -> [Cell]
 getNewBirthCells = (map (view neighbouringCells)) |> concat -- |> uniquesWithCounts |> (filter (snd |> (>=3))) |> map (set aliveInNextTick True)
 
 finalize :: Cell -> Cell
-finalize x = (x.alive .= x.aliveInNextTick)
+finalize x = set alive (view aliveInNextTick x) x
 
 
 -- utils
@@ -47,6 +47,6 @@ uniquesWithCounts :: [[a]] -> [a]
 uniquesWithCounts = Map.fromListWith (+) . map (, 1)
 
 allCombinations :: [Int] -> [Int] -> [(Int, Int)]
-allCombinations (x:xs) (y:ys) = concat (x, y) (allCombinations xs ys) (allCombinations x ys) (allCombinations y xs)
+allCombinations (x:xs) (y:ys) = concat [[(x, y)], (allCombinations xs ys), (allCombinations [x] ys), (allCombinations [y] xs)]
 allCombinations [] _ = []
 allCombinations _ [] = []
