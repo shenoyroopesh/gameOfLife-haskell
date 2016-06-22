@@ -1,10 +1,14 @@
-import Data.Map
-import Data.Lens
+{-# OPTIONS_GHC -XTupleSections #-}
+
+import Test.QuickCheck
+import Data.List
+import Data.Lens.Common
+import qualified Data.Map as Map
 
 data Cell = Cell { x :: Int, y :: Int, alive :: Bool, aliveInNextTick :: Bool, neighbouringCells :: [Cell] }
 
 tick :: [Cell] -> [Cell]
-tick = (\xs = map (fillNeighbours xs) xs) |> map (setL aliveInNextTick True) |>
+tick = (\xs -> map (fillNeighbours xs) xs) |> map (setL aliveInNextTick True) |>
 				map (killIfNeighbours (<2)) |> map (killIfNeighbours (>3)) |> birthNewCells |> (map finalize)
 
 fillNeighbours :: [Cell] -> Cell -> Cell
@@ -17,14 +21,14 @@ cellFromPosition xs (x,y) = maybe (Cell x y False False []) id (find (\cell -> g
 
 killIfNeighbours :: (a -> Bool) -> Cell -> Cell
 killIfNeighbours condition cell@(Cell _ _ _ _ neighbouringCells) = 
-	if (condition (length (filter alive neighbouringCells)) then (setL aliveInNextTick False cell) else cell
+	if (condition (length (filter alive neighbouringCells))) then (setL aliveInNextTick False cell) else cell
 
 -- first collect all neighbouring cells in one place - then make individual counts of each of them - then birth the ones that were dead
 birthNewCells :: [Cell] -> [Cell]
 birthNewCells a = nub a:(getNewBirthCells a)
 
 getNewBirthCells :: [Cell] -> [Cell]
-getNewBirthCells = (map neighbouringCells) |> concat |> uniquesWithCounts |> (filter (count |> >= 3)) |> map (setL aliveInNextTick true)
+getNewBirthCells = (map neighbouringCells) |> concat |> uniquesWithCounts |> (filter (snd |> (>=3))) |> map (setL aliveInNextTick True)
 
 finalize :: Cell -> Cell
 finalize x = setL alive (getL aliveInNextTick x) x
@@ -32,7 +36,7 @@ finalize x = setL alive (getL aliveInNextTick x) x
 
 -- utils
 -- pipe operator for convenience
-|> f g = g . f
+(|>) f g = g . f
 
 uniquesWithCounts = Map.fromListWith (+) . map (, 1)
 
