@@ -1,10 +1,12 @@
 {-# OPTIONS_GHC -XTupleSections -XDeriveFoldable #-}
 {-# LANGUAGE ScopedTypeVariables, TemplateHaskell #-}
 
-import Test.QuickCheck
+module GameOfLife (tickExtern) where
+
 import Data.List
 import Control.Lens (makeLenses, set, view)
 import qualified Data.Map as Map
+import Utils
 
 -- data type
 data Cell = Cell { _x :: Int, _y :: Int, _alive :: Bool, _aliveInNextTick :: Bool, _neighbouringCells :: [Cell] }
@@ -58,12 +60,3 @@ finalize x = set alive (view aliveInNextTick x) x
 
 uniquesWithCounts :: [Cell] -> [(Cell, Int)]
 uniquesWithCounts = sort |> group |> map (\xs@(x:_) -> (x, length xs))
-
--- utils
--- pipe operator for convenience
-(|>) f g = g . f
-
-allCombinations :: [Int] -> [Int] -> [(Int, Int)]
-allCombinations (x:xs) (y:ys) = concat [[(x, y)], (allCombinations xs ys), (allCombinations [x] ys), (allCombinations xs [y])]
-allCombinations [] _ = []
-allCombinations _ [] = []
