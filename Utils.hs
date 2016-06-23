@@ -1,7 +1,7 @@
 module Utils (
  (|>),
  allCombinations, 
- uniquesWithCounts
+ countUniques
 ) where
 	
 import Data.List
@@ -13,5 +13,5 @@ allCombinations (x:xs) (y:ys) = concat [[(x, y)], (allCombinations xs ys), (allC
 allCombinations [] _ = []
 allCombinations _ [] = []
 
-uniquesWithCounts :: Ord a => [a] -> [(a, Int)]
-uniquesWithCounts = sort |> group |> map (\xs@(x:_) -> (x, length xs))
+countUniques :: Ord a => [a] -> [(a, Int)]
+countUniques = sort |> group |> map (\xs@(x:_) -> (x, length xs))

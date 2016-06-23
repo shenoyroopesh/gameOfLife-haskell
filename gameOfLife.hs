@@ -46,5 +46,4 @@ tickInternal =  (map $ set alive True |> set willBeAlive True)
 			updateStatus x = set alive (x^.willBeAlive) x
 
 getNewCells :: [Cell] -> [Cell]
-getNewCells = (concatMap (^. neighbors)) |> uniquesWithCounts |> (filter (snd |> (== 3))) 
-	|> (map $ fst |> set willBeAlive True)
+getNewCells = (concatMap (^. neighbors)) |> countUniques |> (filter $ snd |> (== 3)) |> (map $ fst |> set willBeAlive True)
