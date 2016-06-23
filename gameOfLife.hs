@@ -1,7 +1,7 @@
 {-# OPTIONS_GHC -XTupleSections -XDeriveFoldable #-}
 {-# LANGUAGE ScopedTypeVariables, TemplateHaskell #-}
 
-module GameOfLife (tickExtern) where
+module GameOfLife (tick) where
 
 import Data.List
 import Control.Lens (makeLenses, set, view)
@@ -30,12 +30,12 @@ fillNeighbours :: [Cell] -> Cell -> Cell
 fillNeighbours xs (Cell x y a an _) = (Cell x y a an (map (cellFromPosition xs) $ neighbouringPosns x y))
 
 -- key external world interface												
-tickExtern::[(Int, Int)] -> [(Int, Int)]
-tickExtern = (map $ cellFromPosition []) |> tick |> (map $ posnFromCell)
+tick::[(Int, Int)] -> [(Int, Int)]
+tick = (map $ cellFromPosition []) |> tickInternal |> (map $ posnFromCell)
 
 -- all the functions we need
-tick :: [Cell] -> [Cell]
-tick =  (map $ set alive True |> set aliveInNextTick True) 
+tickInternal :: [Cell] -> [Cell]
+tickInternal =  (map $ set alive True |> set aliveInNextTick True) 
 			|> (\xs -> map (fillNeighbours xs) xs) 
 			|> (map $ killIfNeighbours (<2) |> killIfNeighbours (>3)) 
 			|> birthNewCells |> (map finalize) |> (filter $ view alive) |> sort
