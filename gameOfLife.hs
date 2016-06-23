@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -XTupleSections #-}
+{-# OPTIONS_GHC -XTupleSections -XDeriveFoldable #-}
 {-# LANGUAGE ScopedTypeVariables, TemplateHaskell #-}
 
 import Test.QuickCheck
@@ -7,7 +7,6 @@ import Control.Lens
 import qualified Data.Map as Map
 
 data Cell = Cell { _x :: Int, _y :: Int, _alive :: Bool, _aliveInNextTick :: Bool, _neighbouringCells :: [Cell] }
-
 makeLenses ''Cell
 
 tick :: [Cell] -> [Cell]
@@ -31,10 +30,10 @@ killIfNeighbours condition cell@(Cell _ _ _ _ neighbouringCells) =
 
 -- first collect all neighbouring cells in one place - then make individual counts of each of them - then birth the ones that were dead
 birthNewCells :: [Cell] -> [Cell]
-birthNewCells a = nub (concat [a, (getNewBirthCells a)])
+birthNewCells a = nub (a ++ (getNewBirthCells a))
 
 getNewBirthCells :: [Cell] -> [Cell]
-getNewBirthCells = (map (view neighbouringCells)) |> concat -- |> uniquesWithCounts |> (filter (snd |> (>=3))) |> map (set aliveInNextTick True)
+getNewBirthCells = (map (\(Cell _ _ _ _ nc) -> nc)) |> concat -- |> uniquesWithCounts |> (filter (snd |> (>=3))) |> map (set aliveInNextTick True)
 
 finalize :: Cell -> Cell
 finalize x = set alive (view aliveInNextTick x) x
