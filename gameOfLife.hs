@@ -51,7 +51,7 @@ birthNewCells :: [Cell] -> [Cell]
 birthNewCells a = nub $ a ++ (getNewBirthCells a)
 
 getNewBirthCells :: [Cell] -> [Cell]
-getNewBirthCells = (concatMap (\(Cell _ _ _ _ nc) -> nc)) |> uniquesWithCounts |> (filter (\x -> (snd x == 3))) |> (map fst)
+getNewBirthCells = (concatMap $ view neighbouringCells) |> uniquesWithCounts |> (filter (\x -> (snd x == 3))) |> (map fst)
 		 	|> map (set aliveInNextTick True)
 
 finalize :: Cell -> Cell

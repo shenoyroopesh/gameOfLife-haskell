@@ -1,7 +1,10 @@
 module Utils (
  (|>),
- allCombinations
+ allCombinations, 
+ uniquesWithCounts
 ) where
+	
+import Data.List
 
 (|>) f g = g . f
 
