@@ -9,6 +9,15 @@ import qualified Data.Map as Map
 data Cell = Cell { _x :: Int, _y :: Int, _alive :: Bool, _aliveInNextTick :: Bool, _neighbouringCells :: [Cell] }
 makeLenses ''Cell
 
+instance Eq (Cell) where
+	(==) (Cell x1 y1 _ _ _) (Cell x2 y2 _ _ _) = x1 == x2 && y1 == y2
+	
+instance Ord (Cell) where
+	compare (Cell x1 y1 _ _ _) (Cell x2 y2 _ _ _) = if (x1 == x2) then 
+														(if y1 == y2 then EQ 
+															else (if y1 > y2 then GT else LT)) 
+													else (if x1 > x2 then GT else LT)
+
 tick :: [Cell] -> [Cell]
 tick = (\xs -> map (fillNeighbours xs) xs) |> map (set aliveInNextTick True) |>
 				map (killIfNeighbours (<2)) |> map (killIfNeighbours (>3)) |> birthNewCells |> (map finalize)
@@ -42,8 +51,8 @@ finalize x = set alive (view aliveInNextTick x) x
 -- utils
 -- pipe operator for convenience
 -- (|>) f g = g . f
-uniquesWithCounts :: [a] -> [(a, int)]
-uniquesWithCounts = Map.fromListWith (+) . map (, 1)
+uniquesWithCounts :: [Cell] -> [(Cell, Int)]
+uniquesWithCounts = map (\xs@(x:_) -> (x, length xs)) . group . sort
 
 allCombinations :: [Int] -> [Int] -> [(Int, Int)]
 allCombinations (x:xs) (y:ys) = concat [[(x, y)], (allCombinations xs ys), (allCombinations [x] ys), (allCombinations [y] xs)]
