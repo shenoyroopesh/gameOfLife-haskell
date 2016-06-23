@@ -27,14 +27,13 @@ tickExtern = (map $ cellFromPosition []) |> tick |> (map $ \(Cell x y _ _ _) -> 
 
 -- all the functions we need
 tick :: [Cell] -> [Cell]
-tick =  (map $ set alive True |> set aliveInNextTick True) |> 
-			(\xs -> map (fillNeighbours xs) xs) |>
-			(map $ killIfNeighbours (<2)) |> 
-			(map $ killIfNeighbours (>3)) |> birthNewCells |> (map finalize)
-				|> filter (view alive) |> sort
+tick =  (map $ set alive True |> set aliveInNextTick True) 
+			|> (\xs -> map (fillNeighbours xs) xs) 
+			|> (map $ killIfNeighbours (<2) |> killIfNeighbours (>3)) 
+			|> birthNewCells |> (map finalize) |> (filter $ view alive) |> sort
 
 fillNeighbours :: [Cell] -> Cell -> Cell
-fillNeighbours xs cell@(Cell x y _ _ _) = set neighbouringCells (map (cellFromPosition xs) (neighbouringPosns x y)) cell
+fillNeighbours xs (Cell x y a an _) = (Cell x y a an (map (cellFromPosition xs) $ neighbouringPosns x y))
 
 neighbouringPosns :: Int -> Int -> [(Int, Int)]	
 neighbouringPosns x y = delete (x,y) $ allCombinations [(x-1) .. (x+1)] [(y-1) .. (y+1)]
@@ -52,11 +51,8 @@ birthNewCells :: [Cell] -> [Cell]
 birthNewCells a = nub $ a ++ (getNewBirthCells a)
 
 getNewBirthCells :: [Cell] -> [Cell]
-getNewBirthCells = (concatMap (\(Cell _ _ _ _ nc) -> nc)) |> uniquesWithCounts |> (filter (\x -> (snd x == 3))) |> (map fst)  
+getNewBirthCells = (concatMap (\(Cell _ _ _ _ nc) -> nc)) |> uniquesWithCounts |> (filter (\x -> (snd x == 3))) |> (map fst)
 		 	|> map (set aliveInNextTick True)
 
 finalize :: Cell -> Cell
 finalize x = set alive (view aliveInNextTick x) x
-
-uniquesWithCounts :: [Cell] -> [(Cell, Int)]
-uniquesWithCounts = sort |> group |> map (\xs@(x:_) -> (x, length xs))
