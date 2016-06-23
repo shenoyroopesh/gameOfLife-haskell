@@ -8,7 +8,7 @@ import Data.List
 
 (|>) f g = g . f
 
-allCombinations :: [Int] -> [Int] -> [(Int, Int)]
+allCombinations :: [a] -> [b] -> [(a, b)]
 allCombinations (x:xs) (y:ys) = concat [[(x, y)], (allCombinations xs ys), (allCombinations [x] ys), (allCombinations xs [y])]
 allCombinations [] _ = []
 allCombinations _ [] = []
