@@ -29,7 +29,7 @@ tick =  (map $ set alive True) |> (map $ set aliveInNextTick True) |>
 			(\xs -> map (fillNeighbours xs) xs) |>
 			(map $ killIfNeighbours (<2)) |> 
 			(map $ killIfNeighbours (>3)) |> birthNewCells |> (map finalize) 
-				|> filter (view alive)
+				|> filter (view alive) |> sort
 
 fillNeighbours :: [Cell] -> Cell -> Cell
 fillNeighbours xs cell@(Cell x y _ _ _) = set neighbouringCells (map (cellFromPosition xs) (neighbouringPosns x y)) cell
