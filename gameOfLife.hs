@@ -8,30 +8,32 @@ import Control.Lens (makeLenses, set, (^.))
 import qualified Data.Map as Map
 import Utils
 
--- data type
+-- data types
+type Location = (Int, Int)
+
 data Cell = Cell { _x :: Int, _y :: Int, _alive :: Bool, _willBeAlive :: Bool, _neighbors :: [Cell] }
 makeLenses ''Cell
 
 instance Eq (Cell) where
-	(==) a b = posnFromCell a == posnFromCell b
+	(==) a b = locnFromCell a == locnFromCell b
 	
 instance Ord (Cell) where
 	compare c1 c2 = if result == EQ then compare (c1^.y) (c2^.y) else result where result = compare (c1^.x) (c2^.x)
 
-posnFromCell :: Cell -> (Int, Int)
-posnFromCell (Cell x y _ _ _) = (x, y)
+locnFromCell :: Cell -> Location
+locnFromCell (Cell x y _ _ _) = (x, y)
 
 -- if find cell in list then give it back, else create new cell
-cellFromPosition :: [Cell] -> (Int, Int) -> Cell
-cellFromPosition xs c@(x,y) = maybe (Cell x y False False []) id $ find (posnFromCell |> (c ==)) xs
+cellFromLocn :: [Cell] -> Location -> Cell
+cellFromLocn xs c@(x,y) = maybe (Cell x y False False []) id $ find (locnFromCell |> (c ==)) xs
 
 fillNeighbours :: [Cell] -> Cell -> Cell
-fillNeighbours xs (Cell x y a an _) = (Cell x y a an $ map (cellFromPosition xs) $ neighborPosns)
+fillNeighbours xs (Cell x y a an _) = (Cell x y a an $ map (cellFromLocn xs) $ neighborPosns)
 	where neighborPosns = delete (x,y) $ allCombinations [(x-1) .. (x+1)] [(y-1) .. (y+1)]
 
 -- key external world interface	
-tick::[(Int, Int)] -> [(Int, Int)]
-tick = (map $ cellFromPosition []) |> tickInternal |> (map posnFromCell)
+tick::[Location] -> [Location]
+tick = (map $ cellFromLocn []) |> tickInternal |> (map locnFromCell)
 
 -- all the functions we need
 tickInternal :: [Cell] -> [Cell]
