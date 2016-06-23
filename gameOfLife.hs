@@ -22,8 +22,11 @@ tickExtern::[(Int, Int)] -> [(Int, Int)]
 tickExtern = (map $ cellFromPosition []) |> tick |> (map $ \(Cell x y _ _ _) -> (x, y))
 
 tick :: [Cell] -> [Cell]
-tick =  map (set aliveInNextTick True) |> (\xs -> map (fillNeighbours xs) xs) |>
-				map (killIfNeighbours (<2)) |> map (killIfNeighbours (>3)) |> birthNewCells |> (map finalize)
+tick =  (map $ set alive True) |> (map $ set aliveInNextTick True) |> 
+			(\xs -> map (fillNeighbours xs) xs) |>
+			(map $ killIfNeighbours (<2)) |> 
+			(map $ killIfNeighbours (>3)) |> birthNewCells |> (map finalize) 
+				|> filter (view alive)
 
 fillNeighbours :: [Cell] -> Cell -> Cell
 fillNeighbours xs cell@(Cell x y _ _ _) = 
