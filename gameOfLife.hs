@@ -30,7 +30,7 @@ fillNeighbours xs cell@(Cell x y _ _ _) =
 	set neighbouringCells (map (cellFromPosition xs) (neighbouringPosns x y)) cell
 
 neighbouringPosns :: Int -> Int -> [(Int, Int)]	
-neighbouringPosns x y = allCombinations [(x-1) .. (x+1)] [(y-1) .. (y+1)]
+neighbouringPosns x y = delete (x,y) $ allCombinations [(x-1) .. (x+1)] [(y-1) .. (y+1)]
 
 -- if find cell in list then give it back, else create new cell
 cellFromPosition :: [Cell] -> (Int, Int) -> Cell
