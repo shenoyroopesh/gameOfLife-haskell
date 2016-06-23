@@ -43,16 +43,16 @@ cellFromPosition :: [Cell] -> (Int, Int) -> Cell
 cellFromPosition xs (x,y) = maybe (Cell x y False False []) id (find (\(Cell x1 y1 _ _ _) -> x1 == x && y1 == y) xs)
 
 killIfNeighbours :: (Int -> Bool) -> Cell -> Cell
-killIfNeighbours condition cell@(Cell _ _ _ _ neighbouringCells) = 
-	if (condition $ length $ filter (view alive) neighbouringCells) then (set aliveInNextTick False cell) else cell
+killIfNeighbours condition cell@(Cell _ _ _ _ nc) = 
+	if (condition $ length $ filter (view alive) nc) then (set aliveInNextTick False cell) else cell
 
 -- first collect all neighbouring cells in one place - then make individual counts of each of them - then birth the ones that were dead
 birthNewCells :: [Cell] -> [Cell]
 birthNewCells a = nub $ a ++ (getNewBirthCells a)
 
 getNewBirthCells :: [Cell] -> [Cell]
-getNewBirthCells = (concatMap $ view neighbouringCells) |> uniquesWithCounts |> (filter (\x -> (snd x == 3))) |> (map fst)
-		 	|> map (set aliveInNextTick True)
+getNewBirthCells = (concatMap $ view neighbouringCells) |> uniquesWithCounts |> (filter (snd |> (== 3))) 
+			|> (map $ fst |> set aliveInNextTick True)
 
 finalize :: Cell -> Cell
 finalize x = set alive (view aliveInNextTick x) x
