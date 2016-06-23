@@ -38,9 +38,9 @@ fillNeighbours xs (Cell x y a an _) = (Cell x y a an neighborCells)
 tick::[Location] -> [Location]
 tick = (map $ cellFromLocn []) |> tickInternal |> (map locnFromCell)
 
-ticks::[Location] -> Int -> [Location]
-ticks ln 1 = tick ln
-ticks ln gens = ticks (tick ln) (gens - 1)
+ticks:: Int -> [Location] -> [Location]
+ticks 1 = tick
+ticks gens = tick |> ticks (gens - 1)
 
 -- all the functions we need
 tickInternal :: [Cell] -> [Cell]
