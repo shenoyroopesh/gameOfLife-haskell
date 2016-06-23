@@ -26,14 +26,14 @@ cellFromPosition xs (x,y) = maybe (Cell x y False False []) id (find (\(Cell x1 
 
 killIfNeighbours :: (Int -> Bool) -> Cell -> Cell
 killIfNeighbours condition cell@(Cell _ _ _ _ neighbouringCells) = 
-	if (condition (length (filter (view alive) neighbouringCells))) then (set aliveInNextTick False cell) else cell
+	if (condition $ length $ filter (view alive) neighbouringCells) then (set aliveInNextTick False cell) else cell
 
 -- first collect all neighbouring cells in one place - then make individual counts of each of them - then birth the ones that were dead
 birthNewCells :: [Cell] -> [Cell]
-birthNewCells a = nub (a ++ (getNewBirthCells a))
+birthNewCells a = nub $ a ++ (getNewBirthCells a)
 
 getNewBirthCells :: [Cell] -> [Cell]
-getNewBirthCells = (map (\(Cell _ _ _ _ nc) -> nc)) |> concat -- |> uniquesWithCounts |> (filter (snd |> (>=3))) |> map (set aliveInNextTick True)
+getNewBirthCells = (concatMap (\(Cell _ _ _ _ nc) -> nc)) -- |> uniquesWithCounts |> (filter (\x -> (snd x >= 3))) -- |> (map fst) -- (snd |> (>=3))) -- |> map (set aliveInNextTick True)
 
 finalize :: Cell -> Cell
 finalize x = set alive (view aliveInNextTick x) x
@@ -42,7 +42,7 @@ finalize x = set alive (view aliveInNextTick x) x
 -- utils
 -- pipe operator for convenience
 -- (|>) f g = g . f
-uniquesWithCounts :: [[a]] -> [a]
+uniquesWithCounts :: [a] -> [(a, int)]
 uniquesWithCounts = Map.fromListWith (+) . map (, 1)
 
 allCombinations :: [Int] -> [Int] -> [(Int, Int)]
