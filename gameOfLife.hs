@@ -6,6 +6,7 @@ import Data.List
 import Control.Lens (makeLenses, set, view)
 import qualified Data.Map as Map
 
+-- data type
 data Cell = Cell { _x :: Int, _y :: Int, _alive :: Bool, _aliveInNextTick :: Bool, _neighbouringCells :: [Cell] }
 makeLenses ''Cell
 
@@ -13,14 +14,16 @@ instance Eq (Cell) where
 	(==) (Cell x1 y1 _ _ _) (Cell x2 y2 _ _ _) = x1 == x2 && y1 == y2
 	
 instance Ord (Cell) where
-	compare (Cell x1 y1 _ _ _) (Cell x2 y2 _ _ _) = if (x1 == x2) then 
-														(if y1 == y2 then EQ 
-															else (if y1 > y2 then GT else LT)) 
-													else (if x1 > x2 then GT else LT)
-													
+	compare (Cell x1 y1 _ _ _) (Cell x2 y2 _ _ _) = if (x1 == x2 && y1 == y2) then EQ 
+														else if x1 > x2 || (x1 == x2 && y1 > y2) then GT
+															else LT
+
+
+-- key external world interface												
 tickExtern::[(Int, Int)] -> [(Int, Int)]
 tickExtern = (map $ cellFromPosition []) |> tick |> (map $ \(Cell x y _ _ _) -> (x, y))
 
+-- all the functions we need
 tick :: [Cell] -> [Cell]
 tick =  (map $ set alive True) |> (map $ set aliveInNextTick True) |> 
 			(\xs -> map (fillNeighbours xs) xs) |>
@@ -29,8 +32,7 @@ tick =  (map $ set alive True) |> (map $ set aliveInNextTick True) |>
 				|> filter (view alive)
 
 fillNeighbours :: [Cell] -> Cell -> Cell
-fillNeighbours xs cell@(Cell x y _ _ _) = 
-	set neighbouringCells (map (cellFromPosition xs) (neighbouringPosns x y)) cell
+fillNeighbours xs cell@(Cell x y _ _ _) = set neighbouringCells (map (cellFromPosition xs) (neighbouringPosns x y)) cell
 
 neighbouringPosns :: Int -> Int -> [(Int, Int)]	
 neighbouringPosns x y = delete (x,y) $ allCombinations [(x-1) .. (x+1)] [(y-1) .. (y+1)]
