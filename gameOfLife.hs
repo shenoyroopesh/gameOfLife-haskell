@@ -46,7 +46,7 @@ birthNewCells a = nub $ a ++ (getNewBirthCells a)
 
 getNewBirthCells :: [Cell] -> [Cell]
 getNewBirthCells = (concatMap (\(Cell _ _ _ _ nc) -> nc)) |> uniquesWithCounts |> (filter (\x -> (snd x >= 3))) |> (map fst)  
-			|> map (set aliveInNextTick True)
+		 	|> map (set aliveInNextTick True)
 
 finalize :: Cell -> Cell
 finalize x = set alive (view aliveInNextTick x) x
@@ -59,6 +59,6 @@ uniquesWithCounts = map (\xs@(x:_) -> (x, length xs)) . group . sort
 (|>) f g = g . f
 
 allCombinations :: [Int] -> [Int] -> [(Int, Int)]
-allCombinations (x:xs) (y:ys) = concat [[(x, y)], (allCombinations xs ys), (allCombinations [x] ys), (allCombinations [y] xs)]
+allCombinations (x:xs) (y:ys) = concat [[(x, y)], (allCombinations xs ys), (allCombinations [x] ys), (allCombinations xs [y])]
 allCombinations [] _ = []
 allCombinations _ [] = []
