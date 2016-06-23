@@ -3,7 +3,7 @@
 
 import Test.QuickCheck
 import Data.List
-import Control.Lens
+import Control.Lens (makeLenses, set, view)
 import qualified Data.Map as Map
 
 data Cell = Cell { _x :: Int, _y :: Int, _alive :: Bool, _aliveInNextTick :: Bool, _neighbouringCells :: [Cell] }
@@ -19,7 +19,7 @@ instance Ord (Cell) where
 													else (if x1 > x2 then GT else LT)
 
 tick :: [Cell] -> [Cell]
-tick = (\xs -> map (fillNeighbours xs) xs) |> map (set aliveInNextTick True) |>
+tick =  map (set aliveInNextTick True) |> (\xs -> map (fillNeighbours xs) xs) |>
 				map (killIfNeighbours (<2)) |> map (killIfNeighbours (>3)) |> birthNewCells |> (map finalize)
 
 fillNeighbours :: [Cell] -> Cell -> Cell
@@ -47,12 +47,12 @@ getNewBirthCells = (concatMap (\(Cell _ _ _ _ nc) -> nc)) -- |> uniquesWithCount
 finalize :: Cell -> Cell
 finalize x = set alive (view aliveInNextTick x) x
 
+uniquesWithCounts :: [Cell] -> [(Cell, Int)]
+uniquesWithCounts = map (\xs@(x:_) -> (x, length xs)) . group . sort
 
 -- utils
 -- pipe operator for convenience
--- (|>) f g = g . f
-uniquesWithCounts :: [Cell] -> [(Cell, Int)]
-uniquesWithCounts = map (\xs@(x:_) -> (x, length xs)) . group . sort
+(|>) f g = g . f
 
 allCombinations :: [Int] -> [Int] -> [(Int, Int)]
 allCombinations (x:xs) (y:ys) = concat [[(x, y)], (allCombinations xs ys), (allCombinations [x] ys), (allCombinations [y] xs)]
