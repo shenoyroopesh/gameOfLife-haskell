@@ -19,17 +19,16 @@ instance Ord (Cell) where
 			else if x1 > x2 || (x1 == x2 && y1 > y2) then GT
 				else LT
 
-
 -- key external world interface												
 tickExtern::[(Int, Int)] -> [(Int, Int)]
 tickExtern = (map $ cellFromPosition []) |> tick |> (map $ \(Cell x y _ _ _) -> (x, y))
 
 -- all the functions we need
 tick :: [Cell] -> [Cell]
-tick =  (map $ set alive True) |> (map $ set aliveInNextTick True) |> 
+tick =  (map $ set alive True |> set aliveInNextTick True) |> 
 			(\xs -> map (fillNeighbours xs) xs) |>
 			(map $ killIfNeighbours (<2)) |> 
-			(map $ killIfNeighbours (>3)) |> birthNewCells |> (map finalize) 
+			(map $ killIfNeighbours (>3)) |> birthNewCells |> (map finalize)
 				|> filter (view alive) |> sort
 
 fillNeighbours :: [Cell] -> Cell -> Cell
