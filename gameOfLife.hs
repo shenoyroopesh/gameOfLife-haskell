@@ -16,8 +16,7 @@ instance Eq (Cell) where
 	(==) a b = posnFromCell a == posnFromCell b
 	
 instance Ord (Cell) where
-	compare a@(Cell x1 y1 _ _ _) b@(Cell x2 y2 _ _ _) = 
-		if a == b then EQ else if x1 > x2 || (x1 == x2 && y1 > y2) then GT else LT
+	compare (Cell x1 y1 _ _ _) (Cell x2 y2 _ _ _) = if result == EQ then compare y1 y2 else result where result = compare x1 x2
 
 posnFromCell :: Cell -> (Int, Int)
 posnFromCell (Cell x y _ _ _) = (x, y)
