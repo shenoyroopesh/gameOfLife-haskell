@@ -17,6 +17,9 @@ instance Ord (Cell) where
 														(if y1 == y2 then EQ 
 															else (if y1 > y2 then GT else LT)) 
 													else (if x1 > x2 then GT else LT)
+													
+tickExtern::[(Int, Int)] -> [(Int, Int)]
+tickExtern = (map $ cellFromPosition []) |> tick |> (map $ \(Cell x y _ _ _) -> (x, y))
 
 tick :: [Cell] -> [Cell]
 tick =  map (set aliveInNextTick True) |> (\xs -> map (fillNeighbours xs) xs) |>
@@ -42,7 +45,8 @@ birthNewCells :: [Cell] -> [Cell]
 birthNewCells a = nub $ a ++ (getNewBirthCells a)
 
 getNewBirthCells :: [Cell] -> [Cell]
-getNewBirthCells = (concatMap (\(Cell _ _ _ _ nc) -> nc)) -- |> uniquesWithCounts |> (filter (\x -> (snd x >= 3))) -- |> (map fst) -- (snd |> (>=3))) -- |> map (set aliveInNextTick True)
+getNewBirthCells = (concatMap (\(Cell _ _ _ _ nc) -> nc)) |> uniquesWithCounts |> (filter (\x -> (snd x >= 3))) |> (map fst)  
+			|> map (set aliveInNextTick True)
 
 finalize :: Cell -> Cell
 finalize x = set alive (view aliveInNextTick x) x
