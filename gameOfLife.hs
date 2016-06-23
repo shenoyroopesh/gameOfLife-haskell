@@ -13,17 +13,25 @@ data Cell = Cell { _x :: Int, _y :: Int, _alive :: Bool, _aliveInNextTick :: Boo
 makeLenses ''Cell
 
 instance Eq (Cell) where
-	(==) (Cell x1 y1 _ _ _) (Cell x2 y2 _ _ _) = x1 == x2 && y1 == y2
+	(==) a b = posnFromCell a == posnFromCell b
 	
 instance Ord (Cell) where
-	compare (Cell x1 y1 _ _ _) (Cell x2 y2 _ _ _) = 
-		if (x1 == x2 && y1 == y2) then EQ 
-			else if x1 > x2 || (x1 == x2 && y1 > y2) then GT
-				else LT
+	compare a@(Cell x1 y1 _ _ _) b@(Cell x2 y2 _ _ _) = 
+		if a == b then EQ else if x1 > x2 || (x1 == x2 && y1 > y2) then GT else LT
+
+posnFromCell :: Cell -> (Int, Int)
+posnFromCell (Cell x y _ _ _) = (x, y)
+
+-- if find cell in list then give it back, else create new cell
+cellFromPosition :: [Cell] -> (Int, Int) -> Cell
+cellFromPosition xs c@(x,y) = maybe (Cell x y False False []) id (find (posnFromCell |> (c ==)) xs)
+
+fillNeighbours :: [Cell] -> Cell -> Cell
+fillNeighbours xs (Cell x y a an _) = (Cell x y a an (map (cellFromPosition xs) $ neighbouringPosns x y))
 
 -- key external world interface												
 tickExtern::[(Int, Int)] -> [(Int, Int)]
-tickExtern = (map $ cellFromPosition []) |> tick |> (map $ \(Cell x y _ _ _) -> (x, y))
+tickExtern = (map $ cellFromPosition []) |> tick |> (map $ posnFromCell)
 
 -- all the functions we need
 tick :: [Cell] -> [Cell]
@@ -32,15 +40,9 @@ tick =  (map $ set alive True |> set aliveInNextTick True)
 			|> (map $ killIfNeighbours (<2) |> killIfNeighbours (>3)) 
 			|> birthNewCells |> (map finalize) |> (filter $ view alive) |> sort
 
-fillNeighbours :: [Cell] -> Cell -> Cell
-fillNeighbours xs (Cell x y a an _) = (Cell x y a an (map (cellFromPosition xs) $ neighbouringPosns x y))
-
 neighbouringPosns :: Int -> Int -> [(Int, Int)]	
 neighbouringPosns x y = delete (x,y) $ allCombinations [(x-1) .. (x+1)] [(y-1) .. (y+1)]
 
--- if find cell in list then give it back, else create new cell
-cellFromPosition :: [Cell] -> (Int, Int) -> Cell
-cellFromPosition xs (x,y) = maybe (Cell x y False False []) id (find (\(Cell x1 y1 _ _ _) -> x1 == x && y1 == y) xs)
 
 killIfNeighbours :: (Int -> Bool) -> Cell -> Cell
 killIfNeighbours condition cell@(Cell _ _ _ _ nc) = 
