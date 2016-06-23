@@ -14,9 +14,10 @@ instance Eq (Cell) where
 	(==) (Cell x1 y1 _ _ _) (Cell x2 y2 _ _ _) = x1 == x2 && y1 == y2
 	
 instance Ord (Cell) where
-	compare (Cell x1 y1 _ _ _) (Cell x2 y2 _ _ _) = if (x1 == x2 && y1 == y2) then EQ 
-														else if x1 > x2 || (x1 == x2 && y1 > y2) then GT
-															else LT
+	compare (Cell x1 y1 _ _ _) (Cell x2 y2 _ _ _) = 
+		if (x1 == x2 && y1 == y2) then EQ 
+			else if x1 > x2 || (x1 == x2 && y1 > y2) then GT
+				else LT
 
 
 -- key external world interface												
