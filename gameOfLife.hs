@@ -26,7 +26,7 @@ locnFromCell (Cell x y _ _ _) = (x, y)
 -- if find cell in list then give it back, else create new cell
 cellFromLocn :: [Cell] -> Location -> Cell
 cellFromLocn xs l@(x,y) = maybe defaultCell id $ find (locnFromCell |> (l ==)) xs 
-							where defaultCell = (Cell x y False False [])
+	where defaultCell = (Cell x y False False [])
 
 fillNeighbours :: [Cell] -> Cell -> Cell
 fillNeighbours xs (Cell x y a an _) = (Cell x y a an neighborCells)
