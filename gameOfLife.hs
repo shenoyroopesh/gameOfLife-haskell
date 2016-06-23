@@ -58,7 +58,7 @@ finalize :: Cell -> Cell
 finalize x = set alive (view aliveInNextTick x) x
 
 uniquesWithCounts :: [Cell] -> [(Cell, Int)]
-uniquesWithCounts = map (\xs@(x:_) -> (x, length xs)) . group . sort
+uniquesWithCounts = sort |> group |> map (\xs@(x:_) -> (x, length xs))
 
 -- utils
 -- pipe operator for convenience
